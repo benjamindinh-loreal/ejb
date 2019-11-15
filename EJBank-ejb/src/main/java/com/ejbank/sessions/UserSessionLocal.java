@@ -7,4 +7,6 @@ import com.ejbank.payloads.UserPayload;
 @Local
 public interface UserSessionLocal {
 	public UserPayload get(int id) ;
+
+	UserPayload getByLastName(String lastname);
 }

@@ -4,10 +4,15 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="ejbank_user")
+@NamedQueries({
+	@NamedQuery(name="UserEntity.findByLastname", query="SELECT c FROM UserEntity c where c.lastname = :lastname"),
+})
 public class UserEntity implements Serializable {
 	
 	private static final long serialVersionUID = 1L;	

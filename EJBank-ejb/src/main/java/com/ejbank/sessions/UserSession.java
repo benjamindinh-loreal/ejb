@@ -18,6 +18,16 @@ public class UserSession implements UserSessionLocal {
 	@Override
 	public UserPayload get(int id) {
 		UserEntity user = em.find(UserEntity.class, id) ;
+	
     	return new UserPayload(user.getFirstname(), user.getLastname());
 	}
+	
+	@Override
+	public UserPayload getByLastName(String lastname) {
+		UserEntity user = em.createNamedQuery("UserEntity.findByLastname", UserEntity.class).setParameter("lastname", lastname).getSingleResult() ;
+	
+    	return new UserPayload(user.getFirstname(), user.getLastname());
+	}
+	
+	
 }

@@ -28,4 +28,11 @@ public class UserController {
         return user ;
     }
 	
+	@GET
+    @Path("/name/{name}")
+    public UserPayload getByName(@PathParam("name") String lastname) {
+		UserPayload user = userService.getByLastName(lastname) ;
+        return user ;
+    }
+	
 }
