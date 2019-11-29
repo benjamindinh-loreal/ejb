@@ -1,17 +1,21 @@
-package com.ejbank.entities;
+package com.ejbank.entities.user;
 
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
+@Inheritance(strategy=InheritanceType.JOINED)
 @Table(name="ejbank_user")
 @NamedQueries({
 	@NamedQuery(name="UserEntity.findByLastname", query="SELECT c FROM UserEntity c where c.lastname = :lastname"),
+	@NamedQuery(name="UserEntity.findById", query="SELECT c FROM UserEntity c where c.id = :id"),
 })
 public class UserEntity implements Serializable {
 	
@@ -42,6 +46,5 @@ public class UserEntity implements Serializable {
 	
 	public String getType() {
 		return type;
-	}	
-	
+	}		
 }

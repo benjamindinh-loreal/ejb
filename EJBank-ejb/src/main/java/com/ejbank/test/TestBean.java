@@ -5,7 +5,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import com.ejbank.entities.UserEntity;
+import com.ejbank.entities.user.UserEntity;
 
 @Stateless
 @LocalBean

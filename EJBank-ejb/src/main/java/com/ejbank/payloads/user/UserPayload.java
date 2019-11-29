@@ -1,11 +1,10 @@
-package com.ejbank.payloads;
+package com.ejbank.payloads.user;
 
 public class UserPayload {
 	private final String lastname ;
 	private final String firstname ;
 	
 	public UserPayload(String lastname, String firstname) {
-		super();
 		this.lastname = lastname;
 		this.firstname = firstname;
 	}

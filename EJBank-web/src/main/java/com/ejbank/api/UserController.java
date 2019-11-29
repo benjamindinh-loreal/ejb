@@ -10,8 +10,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.ejbank.payloads.UserPayload;
-import com.ejbank.sessions.UserSessionLocal;
+import com.ejbank.payloads.user.UserPayload;
+import com.ejbank.sessions.user.UserSessionLocal;
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON)
