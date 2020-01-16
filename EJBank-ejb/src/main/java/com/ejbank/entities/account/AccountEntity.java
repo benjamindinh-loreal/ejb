@@ -18,7 +18,6 @@ import javax.persistence.Table;
         @NamedQuery(name = "AccountEntity.getTransactionsAccounts", query = "SELECT c FROM AccountEntity c where c.customer_id = :customer_id"),
         @NamedQuery(name = "AccountEntity.getAdvisorAccount", query = "SELECT c FROM AccountEntity c where c.customer_id = :customer_id"),
         @NamedQuery(name = "AccountEntity.getById", query = "SELECT c FROM AccountEntity c where c.id = :id"),
-        @NamedQuery(name = "AccountEntity.updateBalance", query = "UPDATE AccountEntity c set c.balance = :balance where c.id = :id"),
 })
 public class AccountEntity implements Serializable {
 

@@ -4,7 +4,6 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import java.io.Serializable;
 
-@TransactionManagement(TransactionManagementType.BEAN)
 public class SendTransactionPayload implements Serializable {
 
     private Boolean result ;

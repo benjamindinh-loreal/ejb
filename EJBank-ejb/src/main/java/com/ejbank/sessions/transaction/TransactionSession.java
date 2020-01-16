@@ -2,17 +2,22 @@ package com.ejbank.sessions.transaction;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.ejbank.entities.account.AccountEntity;
 import com.ejbank.entities.transaction.TransactionEntity;
+import com.ejbank.entities.user.AdvisorEntity;
+import com.ejbank.entities.user.CustomerEntity;
 import com.ejbank.entities.user.UserEntity;
 import com.ejbank.payloads.transaction.PreviewTransactionPayload;
 import com.ejbank.payloads.transaction.SendTransactionPayload;
-import sun.jvm.hotspot.debugger.MachineDescriptionAMD64;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Stateless
 @LocalBean
@@ -64,22 +69,82 @@ public class TransactionSession implements TransactionSessionLocal {
 		Float before = src.getBalance() - amount.floatValue() ;
 		Float after = dest.getBalance() + amount.floatValue() ;
 
-		src.setBalance(before);
-		dest.setBalance(after);
+		if(before < 0) {
+			return new SendTransactionPayload(false, "Vous ne disposez pas d'un solde suffisant...") ;
+		}
 
-		TransactionEntity transaction = new TransactionEntity() ;
-		transaction.setAccount_id_from(source);
-		transaction.setAccount_id_to(destination);
-		transaction.setAuthor(author);
-		transaction.setAmount(amount.floatValue());
-		transaction.setApplied(0);
+		if(src.getId() == dest.getId()){
+			return new SendTransactionPayload(false, "Vous ne pouvez pas faire de virement du même compte sur le même compte") ;
+		}
 
-		em.persist(src);
-		em.persist(after);
-		em.persist(transaction);
-		em.flush();
+		UserEntity user = em.createNamedQuery("UserEntity.findById", UserEntity.class).setParameter("id", author).getSingleResult() ;
 
-		return new SendTransactionPayload(false,"Message") ;
+		if(amount.floatValue() <= 1000.00) {
+			src.setBalance(before);
+			dest.setBalance(after);
+
+			TransactionEntity transaction = new TransactionEntity() ;
+			transaction.setAccount_id_from(source);
+			transaction.setAccount_id_to(destination);
+			transaction.setAuthor(author);
+			transaction.setComment(comment);
+			transaction.setAmount(amount.floatValue());
+			transaction.setApplied(1);
+
+			em.persist(transaction);
+			em.flush();
+
+			return new SendTransactionPayload(true, "Virement effectué avec succès !!") ;
+
+		}	else if (amount.floatValue() > 1000.00) {
+
+			if (user instanceof CustomerEntity) {
+				TransactionEntity transaction = new TransactionEntity() ;
+				transaction.setAccount_id_from(source);
+				transaction.setAccount_id_to(destination);
+				transaction.setAuthor(author);
+				transaction.setComment(comment);
+				transaction.setAmount(amount.floatValue());
+				transaction.setApplied(0);
+
+				em.persist(transaction);
+				em.flush();
+
+				return new SendTransactionPayload(true, "Attente de validation du conseillé") ;
+			} else if (user instanceof AdvisorEntity) {
+				src.setBalance(before);
+				dest.setBalance(after);
+
+				TransactionEntity transaction = new TransactionEntity() ;
+				transaction.setAccount_id_from(source);
+				transaction.setAccount_id_to(destination);
+				transaction.setAuthor(author);
+				transaction.setComment(comment);
+				transaction.setAmount(amount.floatValue());
+				transaction.setApplied(1);
+
+				em.persist(transaction);
+				em.flush();
+
+				return new SendTransactionPayload(true, "Virement effectué avec succès !!") ;
+			}
+		}
+
+
+		return new SendTransactionPayload(false, "Erreur inatendue") ;
+
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		TransactionSession that = (TransactionSession) o;
+		return Objects.equals(em, that.em);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(em);
+	}
 }
