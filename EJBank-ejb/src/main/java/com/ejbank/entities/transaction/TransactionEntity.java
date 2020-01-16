@@ -26,7 +26,7 @@ public class TransactionEntity implements Serializable {
 	@Column(name="comment") private String comment ;
 	@Column(name="applied") private int applied ;
 
-    public int getId() { return this.id; }
+	public int getId() { return this.id; }
 
     public void setId(int id) { this.id = id; }
 

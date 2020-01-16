@@ -33,8 +33,8 @@ public class AccountController {
 	
 	@GET
     @Path("/all/{customer_id}")
-    public String getAllAccounts(@PathParam("customer_id") int customer_id) {
-		return userService.getUser(customer_id);
+    public AccountListPayload getAllAccounts(@PathParam("customer_id") int customer_id) {
+		return userService.getAllAccountsUser(customer_id);
 		
 		/*AccountListPayload account = accountService.getByCustomerId(customer_id) ;
         return account ;*/

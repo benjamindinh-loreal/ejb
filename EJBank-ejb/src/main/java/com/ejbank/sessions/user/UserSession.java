@@ -5,10 +5,15 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.ejbank.entities.account.AccountEntity;
 import com.ejbank.entities.user.AdvisorEntity;
 import com.ejbank.entities.user.CustomerEntity;
 import com.ejbank.entities.user.UserEntity;
+import com.ejbank.payloads.account.AccountListPayload;
 import com.ejbank.payloads.user.UserPayload;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Stateless
 @LocalBean
@@ -32,16 +37,26 @@ public class UserSession implements UserSessionLocal {
 	}
 
 	@Override
-	public String getUser(int id) {
+	public AccountListPayload getAllAccountsUser(int id) {
 		UserEntity user = em.createNamedQuery("UserEntity.findById", UserEntity.class).setParameter("id", id).getSingleResult() ;
 		
 		if(user instanceof AdvisorEntity) {
-			return "Advisor" ;
+			List<CustomerEntity> customers = ((AdvisorEntity) user).getCustomers() ;
+
+			List<AccountEntity> accounts = new ArrayList<>() ;
+
+			for (CustomerEntity customer : customers) {
+				for (AccountEntity account : customer.getAccounts()) {
+					accounts.add(account) ;
+				}
+			}
+
+			return new AccountListPayload(accounts, "") ;
 		} else if(user instanceof CustomerEntity) {
-			return "Customer" ;
+			return new AccountListPayload(((CustomerEntity) user).getAccounts(), "") ;
 		}
 		
-		return "erreur" ;
+		return null ;
 	}
 	
 	
