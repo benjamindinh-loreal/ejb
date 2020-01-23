@@ -2,8 +2,6 @@ package com.ejbank.sessions.transaction;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -12,11 +10,10 @@ import com.ejbank.entities.transaction.TransactionEntity;
 import com.ejbank.entities.user.AdvisorEntity;
 import com.ejbank.entities.user.CustomerEntity;
 import com.ejbank.entities.user.UserEntity;
-import com.ejbank.payloads.transaction.PreviewTransactionPayload;
-import com.ejbank.payloads.transaction.SendTransactionPayload;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.ejbank.payloads.transaction.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Stateless
@@ -133,6 +130,78 @@ public class TransactionSession implements TransactionSessionLocal {
 
 		return new SendTransactionPayload(false, "Erreur inatendue") ;
 
+	}
+
+	@Override
+	public TransactionsAccountPayload getTransactions(int account_id, int offset, int user_id) {
+
+		AccountEntity account = em.find(AccountEntity.class, account_id) ;
+		UserEntity user = em.createNamedQuery("UserEntity.findById", UserEntity.class).setParameter("id", user_id).getSingleResult();
+
+		ArrayList<TransactionPayload> transactions = new ArrayList<>() ;
+
+		int total_transaction = 0 ;
+		int offset_counter = offset ;
+		int offset_max = offset + 10 ;
+
+		for (TransactionEntity transaction : account.getTransactions()) {
+
+			AccountEntity account_dest = em.find(AccountEntity.class, transaction.getAccount_id_to()) ;
+			UserEntity user_dest = em.createNamedQuery("UserEntity.findById", UserEntity.class).setParameter("id", account_dest.getCustomerId()).getSingleResult();
+
+			String parsed_applied = transaction.getApplied() == 1 ? "APPLYED" : "TO_APPROVE" ;
+
+			if(offset_counter < offset_max){
+				transactions.add( new TransactionPayload(
+						transaction.getId(),
+						transaction.getDate(),
+						account.getType().getName(),
+						account_dest.getType().getName(),
+						user_dest.getFirstname() + " " + user_dest.getLastname(),
+						transaction.getAmount(),
+						user.getFirstname() + " " + user.getLastname(),
+						transaction.getComment(),
+						parsed_applied
+				)) ;
+			}
+
+			total_transaction++ ;
+		}
+
+		return new TransactionsAccountPayload(total_transaction, transactions) ;
+
+	}
+
+	@Override
+	public TransactionValidatePayload validateTransaction(int transaction_id, boolean boolean_decision, int user_id) {
+
+
+		UserEntity user = em.createNamedQuery("UserEntity.findById", UserEntity.class).setParameter("id", user_id).getSingleResult();
+		TransactionEntity transaction = em.createNamedQuery("TransactionEntity.getTransactionById", TransactionEntity.class).setParameter("id", transaction_id).getSingleResult() ;
+
+		if (user instanceof CustomerEntity){
+			return new TransactionValidatePayload(false, "Transaction non validée","Vous n'êtes pas un conseiller") ;
+		}
+
+		if(boolean_decision){
+			AccountEntity src = em.createNamedQuery("AccountEntity.getById", AccountEntity.class).setParameter("id", transaction.getAccount_id_from()).getSingleResult() ;
+			AccountEntity dest = em.createNamedQuery("AccountEntity.getById", AccountEntity.class).setParameter("id", transaction.getAccount_id_to()).getSingleResult() ;
+
+			Float before = src.getBalance() - transaction.getAmount() ;
+			Float after = dest.getBalance() + transaction.getAmount() ;
+
+			if(before < 0) {
+				return new TransactionValidatePayload(false, "Transaction non validée", "Vous ne disposez pas d'un solde suffisant...") ;
+			}
+
+			src.setBalance(before);
+			dest.setBalance(after);
+
+		}
+
+		transaction.setApplied(1);
+
+		return new TransactionValidatePayload(true,"Transaction validée",null) ;
 	}
 
 	@Override

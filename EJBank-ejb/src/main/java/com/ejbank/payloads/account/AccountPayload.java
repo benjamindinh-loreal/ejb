@@ -28,7 +28,5 @@ public class AccountPayload implements Serializable{
 	public float getAmount() {
 		return balance;
 	}
-
-	
 	
 }

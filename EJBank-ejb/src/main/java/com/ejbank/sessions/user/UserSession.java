@@ -35,29 +35,5 @@ public class UserSession implements UserSessionLocal {
 	
     	return new UserPayload(user.getFirstname(), user.getLastname());
 	}
-
-	@Override
-	public AccountListPayload getAllAccountsUser(int id) {
-		UserEntity user = em.createNamedQuery("UserEntity.findById", UserEntity.class).setParameter("id", id).getSingleResult() ;
-		
-		if(user instanceof AdvisorEntity) {
-			List<CustomerEntity> customers = ((AdvisorEntity) user).getCustomers() ;
-
-			List<AccountEntity> accounts = new ArrayList<>() ;
-
-			for (CustomerEntity customer : customers) {
-				for (AccountEntity account : customer.getAccounts()) {
-					accounts.add(account) ;
-				}
-			}
-
-			return new AccountListPayload(accounts, "") ;
-		} else if(user instanceof CustomerEntity) {
-			return new AccountListPayload(((CustomerEntity) user).getAccounts(), "") ;
-		}
-		
-		return null ;
-	}
-	
 	
 }

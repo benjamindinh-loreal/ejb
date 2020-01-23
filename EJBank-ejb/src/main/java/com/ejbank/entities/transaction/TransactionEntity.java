@@ -12,6 +12,7 @@ import javax.persistence.Table;
 @Table(name="ejbank_transaction")
 @NamedQueries({
 	@NamedQuery(name="TransactionEntity.getCustomerCountTransactions", query="SELECT c FROM TransactionEntity c where c.author = :author AND c.applied = 0"),
+		@NamedQuery(name="TransactionEntity.getTransactionById", query="SELECT c FROM TransactionEntity c where c.id = :id"),
 })
 public class TransactionEntity implements Serializable {
 	
@@ -25,6 +26,9 @@ public class TransactionEntity implements Serializable {
 	@Column(name="amount") private float amount ;
 	@Column(name="comment") private String comment ;
 	@Column(name="applied") private int applied ;
+	@Column(name="date") private String date ;
+
+	public String getDate() { return this.date; }
 
 	public int getId() { return this.id; }
 

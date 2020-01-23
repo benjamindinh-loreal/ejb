@@ -10,34 +10,23 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.ejbank.payloads.account.AccountListPayload;
+import com.ejbank.payloads.account.AccountDetailPayload;
 import com.ejbank.sessions.account.AccountSessionLocal;
-import com.ejbank.sessions.user.UserSessionLocal;
 
-@Path("/accounts")
+@Path("/account")
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
+
 public class AccountController {
-	
-	@EJB
-	private AccountSessionLocal accountService ;
-	@EJB
-	private UserSessionLocal userService ;
-	
-	@GET
-    @Path("/{customer_id}")
-    public AccountListPayload get(@PathParam("customer_id") int customer_id) {
-		AccountListPayload account = accountService.getByCustomerId(customer_id) ;
-        return account ;
+
+    @EJB
+    private AccountSessionLocal accountService ;
+
+    @GET
+    @Path("/{account_id}/{user_id}")
+    public AccountDetailPayload getAccountDetail(@PathParam("account_id") int account_id, @PathParam("user_id") int user_id) {
+        return accountService.getAccountDetail(account_id, user_id);
     }
-	
-	@GET
-    @Path("/all/{customer_id}")
-    public AccountListPayload getAllAccounts(@PathParam("customer_id") int customer_id) {
-		return userService.getAllAccountsUser(customer_id);
-		
-		/*AccountListPayload account = accountService.getByCustomerId(customer_id) ;
-        return account ;*/
-    }
-	
 }
+
+

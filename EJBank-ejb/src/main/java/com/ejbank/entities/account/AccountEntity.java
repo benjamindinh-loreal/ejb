@@ -1,15 +1,11 @@
 package com.ejbank.entities.account;
 
-import java.io.Serializable;
+import com.ejbank.entities.transaction.TransactionEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.List;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "ejbank_account")
@@ -35,6 +31,10 @@ public class AccountEntity implements Serializable {
     @JoinColumn(name = "account_type_id", referencedColumnName = "id")
     private AccountTypeEntity type;
 
+    @OneToMany
+    @JoinColumn(name = "account_id_to", referencedColumnName = "id")
+    private List<TransactionEntity> transactions;
+
 
     public int getId() {
         return this.id;
@@ -58,5 +58,13 @@ public class AccountEntity implements Serializable {
 
     public void setBalance(float balance) {
         this.balance = balance;
+    }
+
+    public List<TransactionEntity> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<TransactionEntity> transactions) {
+        this.transactions = transactions;
     }
 }
